@@ -2,30 +2,42 @@
 <html>
 <head>
     <title>Марточка</title>
-    <meta charset="UTF-8">  <!-- Добавлена кодировка символов -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!--  Для адаптивности -->
     <style>
+        /* Основные стили */
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
         #chat-container {
-            width: 500px;
-            margin: 20px auto;
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            max-width: 90%; /* Максимальная ширина для больших экранов */
+            width: 500px;  /*  Ширина по умолчанию, будет переопределена для мобильных */
+            margin: 20px;
             transition: box-shadow 0.3s ease;
-            font-family: sans-serif;  /* Установите стандартный шрифт */
         }
 
         #chat-container:hover {
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
         }
 
         #chat-log {
-            height: 300px;
-            overflow-y: scroll;
-            border: 1px solid #eee;
-            padding: 5px;
-            margin-bottom: 10px;
-            border-radius: 5px;
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eee;
             animation: fadeIn 0.5s ease;
         }
 
@@ -34,12 +46,32 @@
             to { opacity: 1; }
         }
 
+        /* Сообщения */
+        .message {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 20px;
+            clear: both;
+            word-break: break-word;
+            max-width: 80%; /*  Максимальная ширина сообщений */
+        }
+
         .user-message {
+            background-color: #DCF8C6;
+            color: #333;
+            float: right;
             text-align: right;
-            color: blue;
-            margin-bottom: 5px;
-            opacity: 0;
             animation: slideInRight 0.4s ease forwards;
+            opacity: 0;
+        }
+
+        .ai-message {
+            background-color: #E5E5EA;
+            color: #333;
+            float: left;
+            text-align: left;
+            animation: slideInLeft 0.4s ease forwards;
+            opacity: 0;
         }
 
         @keyframes slideInRight {
@@ -47,21 +79,16 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        .ai-message {
-            text-align: left;
-            color: green;
-            margin-bottom: 5px;
-            opacity: 0;
-            animation: slideInLeft 0.4s ease forwards;
-        }
-
         @keyframes slideInLeft {
             from { transform: translateX(-50px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
 
+        /* Область ввода */
         #input-area {
             display: flex;
+            padding: 10px;
+            background-color: #fff;
             animation: slideInUp 0.3s ease;
         }
 
@@ -72,9 +99,10 @@
 
         #user-input {
             flex-grow: 1;
-            padding: 8px;
+            padding: 10px 12px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 24px;
+            margin-right: 10px;
             transition: border-color 0.3s ease;
         }
 
@@ -84,12 +112,12 @@
         }
 
         #send-button {
-            padding: 8px 15px;
+            padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 24px;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
@@ -101,17 +129,18 @@
             transform: scale(0.95);
         }
 
+        /* Время ожидания */
         #thinking-time {
-            font-size: smaller;
+            font-size: 0.8em;
             color: gray;
-            text-align: right;
-            margin-bottom: 5px;
-            opacity: 0; /* Скрыт изначально */
+            text-align: center;
+            padding: 5px 0;
+            opacity: 0;
             transition: opacity 0.3s ease;
         }
 
         #thinking-time.visible {
-            opacity: 1; /* Показывается при запросе */
+            opacity: 1;
         }
 
         /* Анимация пульсации */
@@ -125,16 +154,45 @@
             100% { transform: scale(1); }
         }
 
+        /* Прокрутка */
         #chat-log {
-          scroll-behavior: smooth;
+            scroll-behavior: smooth;
         }
 
+        /* Адаптивные стили для мобильных устройств */
+        @media (max-width: 600px) {
+            #chat-container {
+                width: 100%;
+                max-width: 100%;
+                border-radius: 0;
+                margin: 0;
+                box-shadow: none;
+            }
+
+            #input-area {
+                flex-direction: column;
+            }
+
+            #user-input {
+                margin-bottom: 10px;
+                margin-right: 0;
+                border-radius: 12px;
+            }
+
+            #send-button {
+                border-radius: 12px;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+        }
     </style>
 </head>
 <body>
 
     <div id="chat-container">
-        <div id="thinking-time"></div>  <!--  Место для отображения времени -->
+        <div id="thinking-time"></div>
         <div id="chat-log"></div>
         <div id="input-area">
             <input type="text" id="user-input" placeholder="венозных гей">
@@ -146,7 +204,7 @@
         const chatLog = document.getElementById('chat-log');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
-        const thinkingTime = document.getElementById('thinking-time');  // Получаем элемент
+        const thinkingTime = document.getElementById('thinking-time');
 
         //  Ваш ключ API и имя модели
         const API_KEY = 'AIzaSyBaECdg4ZUViP_0VKSi4kGljlj6aK-UAlU';  // ВАЖНО: НИКОГДА не храните ключи API непосредственно в клиентском коде для реальных проектов. Это просто пример.
@@ -155,16 +213,16 @@
 
         function addMessage(message, sender) {
             const messageDiv = document.createElement('div');
-            messageDiv.classList.add(sender + '-message');
-            messageDiv.textContent = sender + ': ' + message;
+            messageDiv.classList.add('message', sender + '-message'); // Добавлено 'message' для общих стилей
+            messageDiv.textContent = message;
             chatLog.appendChild(messageDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
         async function sendMessageToAI(message) {
             let startTime;
-            thinkingTime.textContent = "Думаю...";  // Начальное сообщение
-            thinkingTime.classList.add('visible', 'pulsate'); // Показываем и добавляем анимацию пульсации
+            thinkingTime.textContent = "Думаю...";
+            thinkingTime.classList.add('visible', 'pulsate');
 
             try {
                 startTime = performance.now();
@@ -186,7 +244,7 @@
                 const responseData = await response.json();
 
                 const endTime = performance.now();
-                const timeTaken = (endTime - startTime).toFixed(2);  // Время в миллисекундах
+                const timeTaken = (endTime - startTime).toFixed(2);
                 thinkingTime.textContent = `Думала ${timeTaken} мс`;
 
                 if (response.ok) {
@@ -206,10 +264,10 @@
             } catch (error) {
                 console.error("Ошибка при отправке запроса:", error);
                 addMessage("Ошибка при отправке запроса к ИИ. Смотрите консоль для подробностей.", AI_NAME);
-                thinkingTime.textContent = "Ошибка!"; //  Сообщение об ошибке, если запрос не удался
+                thinkingTime.textContent = "Ошибка!";
             } finally {
-              thinkingTime.classList.remove('pulsate'); // Удаляем анимацию пульсации
-              setTimeout(() => thinkingTime.classList.remove('visible'), 500); // Скрываем через 0.5 секунды
+              thinkingTime.classList.remove('pulsate');
+              setTimeout(() => thinkingTime.classList.remove('visible'), 500);
             }
         }
 
