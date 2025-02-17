@@ -1,49 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI</title>
+    <title>AI Chat</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!--  Для адаптивности -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Основные стили */
+        /* Общие стили */
         body {
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            /* Добавлено для фона */
-            background-image: url('qw.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background: linear-gradient(45deg, #667eea, #764ba2); /* Градиентный фон */
+            background-size: 200% 200%;
+            animation: gradientAnimation 10s ease infinite;
+            color: #333;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         #chat-container {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background-color: rgba(255, 255, 255, 0.9); /* Полупрозрачный белый фон */
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            max-width: 90%; /* Максимальная ширина для больших экранов */
-            width: 500px;  /*  Ширина по умолчанию, будет переопределена для мобильных */
+            max-width: 90%;
+            width: 500px;
             margin: 20px;
-            transition: box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         #chat-container:hover {
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+            transform: scale(1.02);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
         }
 
         #chat-log {
             height: 400px;
             overflow-y: auto;
-            padding: 10px;
-            background-color: #f9f9f9;
+            padding: 15px;
+            background-color: rgba(245, 245, 245, 0.8); /* Ещё один полупрозрачный слой */
             border-bottom: 1px solid #eee;
             animation: fadeIn 0.5s ease;
+            scroll-behavior: smooth;
         }
 
         @keyframes fadeIn {
@@ -53,17 +65,18 @@
 
         /* Сообщения */
         .message {
-            padding: 8px 12px;
-            margin-bottom: 8px;
-            border-radius: 20px;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 25px;
             clear: both;
             word-break: break-word;
-            max-width: 80%; /*  Максимальная ширина сообщений */
+            max-width: 80%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .user-message {
-            background-color: #DCF8C6;
-            color: #333;
+            background-color: #c8e6c9; /* Светло-зеленый */
+            color: #2e7d32; /* Темно-зеленый */
             float: right;
             text-align: right;
             animation: slideInRight 0.4s ease forwards;
@@ -71,8 +84,8 @@
         }
 
         .ai-message {
-            background-color: #E5E5EA;
-            color: #333;
+            background-color: #e0f2f1; /* Светлый Teal */
+            color: #26a69a; /* Teal */
             float: left;
             text-align: left;
             animation: slideInLeft 0.4s ease forwards;
@@ -93,7 +106,7 @@
         #input-area {
             display: flex;
             padding: 10px;
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.7);
             animation: slideInUp 0.3s ease;
         }
 
@@ -104,40 +117,47 @@
 
         #user-input {
             flex-grow: 1;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 24px;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 30px;
             margin-right: 10px;
-            transition: border-color 0.3s ease;
+            transition: box-shadow 0.3s ease;
+            font-size: 16px;
+            background-color: #f8f8f8;
+            color: #555;
         }
 
         #user-input:focus {
-            border-color: #aaa;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             outline: none;
+            background-color: white;
         }
 
-        #send-button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
+        #send-button, #upload-button {
+            padding: 12px 24px;
+            background-color: #4db6ac; /* Teal оттенок */
             color: white;
             border: none;
             cursor: pointer;
-            border-radius: 24px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            border-radius: 30px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            font-size: 16px;
+            margin-left: 5px;
         }
 
-        #send-button:hover {
-            background-color: #3e8e41;
+        #send-button:hover, #upload-button:hover {
+            background-color: #26a69a;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
 
-        #send-button:active {
+        #send-button:active, #upload-button:active {
             transform: scale(0.95);
         }
 
         /* Время ожидания */
         #thinking-time {
-            font-size: 0.8em;
-            color: gray;
+            font-size: 0.9em;
+            color: #777;
             text-align: center;
             padding: 5px 0;
             opacity: 0;
@@ -159,11 +179,6 @@
             100% { transform: scale(1); }
         }
 
-        /* Прокрутка */
-        #chat-log {
-            scroll-behavior: smooth;
-        }
-
         /* Адаптивные стили для мобильных устройств */
         @media (max-width: 600px) {
             #chat-container {
@@ -181,17 +196,43 @@
             #user-input {
                 margin-bottom: 10px;
                 margin-right: 0;
-                border-radius: 12px;
+                border-radius: 20px;
             }
 
-            #send-button {
-                border-radius: 12px;
+            #send-button, #upload-button {
+                border-radius: 20px;
+                margin-left: 0;
+                margin-top: 5px;
             }
 
             .message {
                 max-width: 90%;
             }
         }
+
+        /* Стили для загрузки изображений */
+        #image-upload-container {
+            display: none;  /* Скрываем контейнер по умолчанию */
+            padding: 10px;
+            border: 1px dashed #ccc;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        #image-upload-container.active {
+            display: block;  /* Показываем контейнер когда активен */
+        }
+
+        #image-preview {
+            max-width: 100%;
+            max-height: 150px;
+            margin-top: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
     </style>
 </head>
 <body>
@@ -199,9 +240,19 @@
     <div id="chat-container">
         <div id="thinking-time"></div>
         <div id="chat-log"></div>
+
+        <div id="image-upload-container">
+            <input type="file" id="image-input" accept="image/*" style="display: none;">
+            <label for="image-input" style="cursor: pointer;">
+                Нажмите, чтобы загрузить изображение
+            </label>
+            <img id="image-preview" src="#" alt="Предварительный просмотр" style="display: none;">
+        </div>
+
         <div id="input-area">
-            <input type="text" id="user-input" placeholder="писать тут блять">
-            <button id="send-button">спросить</button>
+            <input type="text" id="user-input" placeholder="Напишите сообщение...">
+            <button id="send-button">Отправить</button>
+            <button id="upload-button">Загрузить изображение</button>
         </div>
     </div>
 
@@ -209,22 +260,28 @@
         const chatLog = document.getElementById('chat-log');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
+        const uploadButton = document.getElementById('upload-button');
         const thinkingTime = document.getElementById('thinking-time');
+        const imageUploadContainer = document.getElementById('image-upload-container');
+        const imageInput = document.getElementById('image-input');
+        const imagePreview = document.getElementById('image-preview');
 
         //  Ваш ключ API и имя модели
         const API_KEY = 'AIzaSyBaECdg4ZUViP_0VKSi4kGljlj6aK-UAlU';  // ВАЖНО: НИКОГДА не храните ключи API непосредственно в клиентском коде для реальных проектов. Это просто пример.
         const MODEL_NAME = 'gemini-1.5-flash';
         const AI_NAME = "Marta";  //  Имя ИИ
 
+        let currentImageBase64 = null;  // Переменная для хранения base64 изображения
+
         function addMessage(message, sender) {
             const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', sender + '-message'); // Добавлено 'message' для общих стилей
+            messageDiv.classList.add('message', sender + '-message');
             messageDiv.textContent = message;
             chatLog.appendChild(messageDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
-        async function sendMessageToAI(message) {
+        async function sendMessageToAI(message, imageBase64 = null) {
             let startTime;
             thinkingTime.textContent = "Думаю...";
             thinkingTime.classList.add('visible', 'pulsate');
@@ -234,11 +291,25 @@
 
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
                 const headers = { 'Content-Type': 'application/json' };
-                const data = {
-                    "contents": [{
-                        "parts": [{ "text": message }]
-                    }]
-                };
+
+                let data;
+                if (imageBase64) {
+                    data = {
+                        "contents": [{
+                            "parts": [
+                                { "text": message },
+                                { "inline_data": { "mime_type": "image/jpeg", "data": imageBase64.split(',')[1] } }  // Убираем префикс "data:image/jpeg;base64,"
+                            ]
+                        }]
+                    };
+                } else {
+                    data = {
+                        "contents": [{
+                            "parts": [{ "text": message }]
+                        }]
+                    };
+                }
+
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -271,24 +342,48 @@
                 addMessage("Ошибка при отправке запроса к ИИ. Смотрите консоль для подробностей.", AI_NAME);
                 thinkingTime.textContent = "Ошибка!";
             } finally {
-              thinkingTime.classList.remove('pulsate');
-              setTimeout(() => thinkingTime.classList.remove('visible'), 500);
+                thinkingTime.classList.remove('pulsate');
+                setTimeout(() => thinkingTime.classList.remove('visible'), 500);
             }
         }
 
-
         sendButton.addEventListener('click', () => {
             const message = userInput.value.trim();
-            if (message !== '') {
-                addMessage(message, 'Вы');
+            if (message !== '' || currentImageBase64) {
+                addMessage(message || 'Изображение', 'Вы'); //  Если только изображение, сообщение "Изображение"
                 userInput.value = '';
-                sendMessageToAI(message);
+                sendMessageToAI(message, currentImageBase64);  // Передаем base64 изображения
+                currentImageBase64 = null; // Сбрасываем изображение
+                imagePreview.src = "#";
+                imagePreview.style.display = "none";
+                imageUploadContainer.classList.remove('active');
             }
         });
 
         userInput.addEventListener('keyup', (event) => {
             if (event.key === 'Enter') {
                 sendButton.click();
+            }
+        });
+
+        // Загрузка изображений
+        uploadButton.addEventListener('click', () => {
+            imageUploadContainer.classList.toggle('active'); // Показываем/скрываем контейнер
+        });
+
+        imageInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    currentImageBase64 = e.target.result;  //  Сохраняем base64
+
+                    imagePreview.src = currentImageBase64;
+                    imagePreview.style.display = "block";
+                }
+
+                reader.readAsDataURL(file);
             }
         });
     </script>
