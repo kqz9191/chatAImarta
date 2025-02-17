@@ -1,0 +1,7 @@
+body {
+    /* ... existing styles ... */
+    background-image: url('qw.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
