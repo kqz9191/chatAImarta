@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Marta</title>
+    <title>кишмиш</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Общие стили */
+        /* Общие стили (без изменений) */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -63,7 +63,7 @@
             to { opacity: 1; }
         }
 
-        /* Сообщения */
+       /* Сообщения */
         .message {
             padding: 10px 15px;
             margin-bottom: 10px;
@@ -72,46 +72,58 @@
             word-break: break-word;
             max-width: 80%;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            opacity: 0;
-            transform: translateY(10px);
-            animation: slideInMessage 0.3s ease forwards;
-        }
-
-        @keyframes slideInMessage {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            position: relative; /*  для позиционирования имени */
         }
 
         .user-message {
-            background-color: #c8e6c9;
-            color: #2e7d32;
+            background-color: #c8e6c9; /* Светло-зеленый */
+            color: #2e7d32; /* Темно-зеленый */
             float: right;
             text-align: right;
+            animation: slideInRight 0.4s ease forwards;
+            opacity: 0;
         }
 
         .ai-message {
-            background-color: #e0f2f1;
-            color: #26a69a;
+            background-color: #e0f2f1; /* Светлый Teal */
+            color: #26a69a; /* Teal */
             float: left;
             text-align: left;
+            animation: slideInLeft 0.4s ease forwards;
+            opacity: 0;
         }
 
-        .message-sender {
+        @keyframes slideInRight {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Добавляем стили для имени отправителя */
+        .message .sender-name {
+            position: absolute;
+            top: -18px; /* Поднимаем имя над сообщением */
             font-size: 0.8em;
-            font-weight: bold;
-            margin-bottom: 3px;
-            display: block;
+            color: #777;
+            font-style: italic;
+            width: 100%;
         }
 
-        .user-message .message-sender {
+        .user-message .sender-name {
+            right: 15px; /* Выравниваем имя справа для пользователя */
             text-align: right;
         }
 
-        .ai-message .message-sender {
+        .ai-message .sender-name {
+            left: 15px; /* Выравниваем имя слева для AI */
             text-align: left;
         }
 
-        /* Область ввода */
+        /* Область ввода (без изменений) */
         #input-area {
             display: flex;
             padding: 10px;
@@ -163,7 +175,7 @@
             transform: scale(0.95);
         }
 
-        /* Время ожидания */
+        /* Время ожидания (без изменений) */
         #thinking-time {
             font-size: 0.9em;
             color: #777;
@@ -177,7 +189,7 @@
             opacity: 1;
         }
 
-        /* Анимация пульсации */
+        /* Анимация пульсации (без изменений) */
         .pulsate {
             animation: pulsate 1.5s ease-in-out infinite;
         }
@@ -188,7 +200,7 @@
             100% { transform: scale(1); }
         }
 
-        /* Адаптивные стили для мобильных устройств */
+        /* Адаптивные стили для мобильных устройств (без изменений) */
         @media (max-width: 600px) {
             #chat-container {
                 width: 100%;
@@ -219,8 +231,8 @@
             }
         }
 
-        /* Стили для загрузки файлов */
-        #file-upload-container {
+        /* Стили для загрузки изображений (без изменений) */
+        #image-upload-container {
             display: none;
             padding: 10px;
             border: 1px dashed #ccc;
@@ -230,27 +242,26 @@
             cursor: pointer;
         }
 
-        #file-upload-container.active {
+        #image-upload-container.active {
             display: block;
         }
 
-        #file-input {
-            display: none;
+        #image-preview {
+            max-width: 100%;
+            max-height: 150px;
+            margin-top: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .file-info {
+        /* Стили для имени файла */
+        .file-name {
             font-size: 0.8em;
-            color: #777;
-            margin-top: 5px;
-        }
-
-        .attachment-info {
-            font-size: 0.7em;
             color: #555;
             margin-top: 5px;
+            text-align: right;
             font-style: italic;
         }
-
     </style>
 </head>
 <body>
@@ -259,18 +270,18 @@
         <div id="thinking-time"></div>
         <div id="chat-log"></div>
 
-        <div id="file-upload-container">
-            <input type="file" id="file-input" style="display: none;">
-            <label for="file-input" style="cursor: pointer;">
-                нажми, чтобы загрузить файл
+        <div id="image-upload-container">
+            <input type="file" id="image-input" accept="image/*" style="display: none;">
+            <label for="image-input" style="cursor: pointer;">
+                нажми, чтобы загрузить изображение
             </label>
-            <div id="file-info" class="file-info">файл не выбран</div>
+            <img id="image-preview" src="#" alt="Предварительный просмотр" style="display: none;">
         </div>
 
         <div id="input-area">
             <input type="text" id="user-input" placeholder="Напишите сообщение...">
             <button id="send-button">отправить</button>
-            <button id="upload-button">загрузить файл</button>
+            <button id="upload-button">загрузить изображение</button>
         </div>
     </div>
 
@@ -280,41 +291,52 @@
         const sendButton = document.getElementById('send-button');
         const uploadButton = document.getElementById('upload-button');
         const thinkingTime = document.getElementById('thinking-time');
-        const fileUploadContainer = document.getElementById('file-upload-container');
-        const fileInput = document.getElementById('file-input');
-        const fileInfo = document.getElementById('file-info');
+        const imageUploadContainer = document.getElementById('image-upload-container');
+        const imageInput = document.getElementById('image-input');
+        const imagePreview = document.getElementById('image-preview');
 
-        const API_KEY = 'AIzaSyBaECdg4ZUViP_0VKSi4kGljlj6aK-UAlU';
+        const API_KEY = 'AIzaSyBaECdg4ZUViP_0VKSi4kGljlj6aK-UAlU';  // ВАЖНО: НИКОГДА не храните ключи API непосредственно в клиентском коде для реальных проектов. Это просто пример.
         const MODEL_NAME = 'gemini-1.5-flash';
         const AI_NAME = "Marta";
+        const USER_NAME = "Вы"; //  Имя пользователя
+        let chatHistory = []; //  Массив для хранения истории чата
+        let currentImageBase64 = null;
+        let currentFileName = null;  //  Имя текущего файла
 
-        let currentFileBase64 = null;
-        let currentFileName = null;
-
-        function addMessage(message, sender, attachment = null) {
+        // Функция для добавления сообщения в чат
+        function addMessage(message, sender, fileName = null) {
             const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', sender === 'Вы' ? 'user-message' : 'ai-message');
+            messageDiv.classList.add('message', sender === USER_NAME ? 'user-message' : 'ai-message'); // Добавляем классы для стилизации
 
-            const senderSpan = document.createElement('span');
-            senderSpan.classList.add('message-sender');
-            senderSpan.textContent = sender;
-            messageDiv.appendChild(senderSpan);
+            //  Добавляем имя отправителя
+            const senderNameDiv = document.createElement('div');
+            senderNameDiv.classList.add('sender-name');
+            senderNameDiv.textContent = sender;
+            messageDiv.appendChild(senderNameDiv);
 
-            const messageText = document.createTextNode(message);
+
+            //  Текст сообщения
+            const messageText = document.createElement('span');
+            messageText.textContent = message;
             messageDiv.appendChild(messageText);
 
-            if (attachment) {
-                const attachmentInfo = document.createElement('div');
-                attachmentInfo.classList.add('attachment-info');
-                attachmentInfo.textContent = `Прикреплен: ${attachment}`;
-                messageDiv.appendChild(attachmentInfo);
+            // Если есть имя файла, добавляем его под сообщением
+            if (fileName) {
+                const fileNameDiv = document.createElement('div');
+                fileNameDiv.classList.add('file-name');
+                fileNameDiv.textContent = `Файл: ${fileName}`;
+                messageDiv.appendChild(fileNameDiv);
             }
 
             chatLog.appendChild(messageDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
+
+            //  Сохраняем в историю
+            chatHistory.push({ sender: sender, message: message, fileName: fileName });
         }
 
-        async function sendMessageToAI(message, fileBase64 = null, fileName = null) {
+        //  Функция для отправки сообщения ИИ
+         async function sendMessageToAI(message, imageBase64 = null, fileName = null) {
             let startTime;
             thinkingTime.textContent = "Думаю...";
             thinkingTime.classList.add('visible', 'pulsate');
@@ -326,13 +348,12 @@
                 const headers = { 'Content-Type': 'application/json' };
 
                 let data;
-                if (fileBase64) {
-                    const mimeType = fileName.split('.').pop(); // Получаем расширение файла
+                if (imageBase64) {
                     data = {
                         "contents": [{
                             "parts": [
                                 { "text": message },
-                                { "inline_data": { "mime_type": `application/${mimeType}`, "data": fileBase64.split(',')[1] } }
+                                { "inline_data": { "mime_type": "image/jpeg", "data": imageBase64.split(',')[1] } }  // Убираем префикс "data:image/jpeg;base64,"
                             ]
                         }]
                     };
@@ -343,6 +364,7 @@
                         }]
                     };
                 }
+
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -382,14 +404,15 @@
 
         sendButton.addEventListener('click', () => {
             const message = userInput.value.trim();
-            if (message !== '' || currentFileBase64) {
-                addMessage(message || 'Файл', 'Вы', currentFileName); // Показываем имя файла
+            if (message !== '' || currentImageBase64) {
+                addMessage(message || 'Изображение', USER_NAME, currentFileName);
                 userInput.value = '';
-                sendMessageToAI(message, currentFileBase64, currentFileName);
-                currentFileBase64 = null;
+                sendMessageToAI(message, currentImageBase64, currentFileName);
+                currentImageBase64 = null;
                 currentFileName = null;
-                fileInfo.textContent = "Файл не выбран";
-                fileUploadContainer.classList.remove('active');
+                imagePreview.src = "#";
+                imagePreview.style.display = "none";
+                imageUploadContainer.classList.remove('active');
             }
         });
 
@@ -399,25 +422,45 @@
             }
         });
 
-        // Загрузка файлов
+        //  Загрузка изображений
         uploadButton.addEventListener('click', () => {
-            fileUploadContainer.classList.toggle('active');
+            imageUploadContainer.classList.toggle('active');
         });
 
-        fileInput.addEventListener('change', (event) => {
+        imageInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (file) {
+                currentFileName = file.name; // Сохраняем имя файла
                 const reader = new FileReader();
 
                 reader.onload = function(e) {
-                    currentFileBase64 = e.target.result;
+                    currentImageBase64 = e.target.result;
+
+                    imagePreview.src = currentImageBase64;
+                    imagePreview.style.display = "block";
                 }
 
                 reader.readAsDataURL(file);
-                currentFileName = file.name;  // Сохраняем имя файла
-                fileInfo.textContent = `Выбран файл: ${file.name}`;
             }
         });
+
+        // Функция для загрузки истории чата (пример)
+        function loadChatHistory() {
+            //  Здесь должна быть логика загрузки истории из локального хранилища, базы данных или другого источника.
+            //  В этом примере просто создадим несколько случайных сообщений.
+            const sampleHistory = [
+                { sender: AI_NAME, message: "Привет! Чем могу помочь?" },
+                { sender: USER_NAME, message: "Привет, Как дела" },
+                { sender: AI_NAME, message: "Я марта и у меня все хорошо" }
+            ];
+
+            sampleHistory.forEach(item => {
+                addMessage(item.message, item.sender);
+            });
+        }
+
+        //  Загружаем историю чата при загрузке страницы
+        window.onload = loadChatHistory;
     </script>
 
 </body>
