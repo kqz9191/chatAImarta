@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Chat</title>
+    <title>AI Marta</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -14,7 +14,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(45deg, #667eea, #764ba2); /* Градиентный фон */
+            background: linear-gradient(45deg, #667eea, #764ba2);
             background-size: 200% 200%;
             animation: gradientAnimation 10s ease infinite;
             color: #333;
@@ -33,7 +33,7 @@
         }
 
         #chat-container {
-            background-color: rgba(255, 255, 255, 0.9); /* Полупрозрачный белый фон */
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 15px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
             overflow: hidden;
@@ -52,7 +52,7 @@
             height: 400px;
             overflow-y: auto;
             padding: 15px;
-            background-color: rgba(245, 245, 245, 0.8); /* Ещё один полупрозрачный слой */
+            background-color: rgba(245, 245, 245, 0.8);
             border-bottom: 1px solid #eee;
             animation: fadeIn 0.5s ease;
             scroll-behavior: smooth;
@@ -72,34 +72,43 @@
             word-break: break-word;
             max-width: 80%;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(10px);
+            animation: slideInMessage 0.3s ease forwards;
+        }
+
+        @keyframes slideInMessage {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .user-message {
-            background-color: #c8e6c9; /* Светло-зеленый */
-            color: #2e7d32; /* Темно-зеленый */
+            background-color: #c8e6c9;
+            color: #2e7d32;
             float: right;
             text-align: right;
-            animation: slideInRight 0.4s ease forwards;
-            opacity: 0;
         }
 
         .ai-message {
-            background-color: #e0f2f1; /* Светлый Teal */
-            color: #26a69a; /* Teal */
+            background-color: #e0f2f1;
+            color: #26a69a;
             float: left;
             text-align: left;
-            animation: slideInLeft 0.4s ease forwards;
-            opacity: 0;
         }
 
-        @keyframes slideInRight {
-            from { transform: translateX(50px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        .message-sender {
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 3px;
+            display: block;
         }
 
-        @keyframes slideInLeft {
-            from { transform: translateX(-50px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        .user-message .message-sender {
+            text-align: right;
+        }
+
+        .ai-message .message-sender {
+            text-align: left;
         }
 
         /* Область ввода */
@@ -135,7 +144,7 @@
 
         #send-button, #upload-button {
             padding: 12px 24px;
-            background-color: #4db6ac; /* Teal оттенок */
+            background-color: #4db6ac;
             color: white;
             border: none;
             cursor: pointer;
@@ -210,9 +219,9 @@
             }
         }
 
-        /* Стили для загрузки изображений */
-        #image-upload-container {
-            display: none;  /* Скрываем контейнер по умолчанию */
+        /* Стили для загрузки файлов */
+        #file-upload-container {
+            display: none;
             padding: 10px;
             border: 1px dashed #ccc;
             border-radius: 10px;
@@ -221,16 +230,25 @@
             cursor: pointer;
         }
 
-        #image-upload-container.active {
-            display: block;  /* Показываем контейнер когда активен */
+        #file-upload-container.active {
+            display: block;
         }
 
-        #image-preview {
-            max-width: 100%;
-            max-height: 150px;
-            margin-top: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        #file-input {
+            display: none;
+        }
+
+        .file-info {
+            font-size: 0.8em;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .attachment-info {
+            font-size: 0.7em;
+            color: #555;
+            margin-top: 5px;
+            font-style: italic;
         }
 
     </style>
@@ -241,18 +259,18 @@
         <div id="thinking-time"></div>
         <div id="chat-log"></div>
 
-        <div id="image-upload-container">
-            <input type="file" id="image-input" accept="image/*" style="display: none;">
-            <label for="image-input" style="cursor: pointer;">
-                Нажмите, чтобы загрузить изображение
+        <div id="file-upload-container">
+            <input type="file" id="file-input" style="display: none;">
+            <label for="file-input" style="cursor: pointer;">
+                нажми, чтобы загрузить файл
             </label>
-            <img id="image-preview" src="#" alt="Предварительный просмотр" style="display: none;">
+            <div id="file-info" class="file-info">файл не выбран</div>
         </div>
 
         <div id="input-area">
             <input type="text" id="user-input" placeholder="Напишите сообщение...">
-            <button id="send-button">Отправить</button>
-            <button id="upload-button">Загрузить изображение</button>
+            <button id="send-button">отправить</button>
+            <button id="upload-button">загрузить файл</button>
         </div>
     </div>
 
@@ -262,26 +280,41 @@
         const sendButton = document.getElementById('send-button');
         const uploadButton = document.getElementById('upload-button');
         const thinkingTime = document.getElementById('thinking-time');
-        const imageUploadContainer = document.getElementById('image-upload-container');
-        const imageInput = document.getElementById('image-input');
-        const imagePreview = document.getElementById('image-preview');
+        const fileUploadContainer = document.getElementById('file-upload-container');
+        const fileInput = document.getElementById('file-input');
+        const fileInfo = document.getElementById('file-info');
 
-        //  Ваш ключ API и имя модели
-        const API_KEY = 'AIzaSyBaECdg4ZUViP_0VKSi4kGljlj6aK-UAlU';  // ВАЖНО: НИКОГДА не храните ключи API непосредственно в клиентском коде для реальных проектов. Это просто пример.
+        const API_KEY = 'AIzaSyBaECdg4ZUViP_0VKSi4kGljlj6aK-UAlU';
         const MODEL_NAME = 'gemini-1.5-flash';
-        const AI_NAME = "Marta";  //  Имя ИИ
+        const AI_NAME = "Marta";
 
-        let currentImageBase64 = null;  // Переменная для хранения base64 изображения
+        let currentFileBase64 = null;
+        let currentFileName = null;
 
-        function addMessage(message, sender) {
+        function addMessage(message, sender, attachment = null) {
             const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', sender + '-message');
-            messageDiv.textContent = message;
+            messageDiv.classList.add('message', sender === 'Вы' ? 'user-message' : 'ai-message');
+
+            const senderSpan = document.createElement('span');
+            senderSpan.classList.add('message-sender');
+            senderSpan.textContent = sender;
+            messageDiv.appendChild(senderSpan);
+
+            const messageText = document.createTextNode(message);
+            messageDiv.appendChild(messageText);
+
+            if (attachment) {
+                const attachmentInfo = document.createElement('div');
+                attachmentInfo.classList.add('attachment-info');
+                attachmentInfo.textContent = `Прикреплен: ${attachment}`;
+                messageDiv.appendChild(attachmentInfo);
+            }
+
             chatLog.appendChild(messageDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
-        async function sendMessageToAI(message, imageBase64 = null) {
+        async function sendMessageToAI(message, fileBase64 = null, fileName = null) {
             let startTime;
             thinkingTime.textContent = "Думаю...";
             thinkingTime.classList.add('visible', 'pulsate');
@@ -293,12 +326,13 @@
                 const headers = { 'Content-Type': 'application/json' };
 
                 let data;
-                if (imageBase64) {
+                if (fileBase64) {
+                    const mimeType = fileName.split('.').pop(); // Получаем расширение файла
                     data = {
                         "contents": [{
                             "parts": [
                                 { "text": message },
-                                { "inline_data": { "mime_type": "image/jpeg", "data": imageBase64.split(',')[1] } }  // Убираем префикс "data:image/jpeg;base64,"
+                                { "inline_data": { "mime_type": `application/${mimeType}`, "data": fileBase64.split(',')[1] } }
                             ]
                         }]
                     };
@@ -309,7 +343,6 @@
                         }]
                     };
                 }
-
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -349,14 +382,14 @@
 
         sendButton.addEventListener('click', () => {
             const message = userInput.value.trim();
-            if (message !== '' || currentImageBase64) {
-                addMessage(message || 'Изображение', 'Вы'); //  Если только изображение, сообщение "Изображение"
+            if (message !== '' || currentFileBase64) {
+                addMessage(message || 'Файл', 'Вы', currentFileName); // Показываем имя файла
                 userInput.value = '';
-                sendMessageToAI(message, currentImageBase64);  // Передаем base64 изображения
-                currentImageBase64 = null; // Сбрасываем изображение
-                imagePreview.src = "#";
-                imagePreview.style.display = "none";
-                imageUploadContainer.classList.remove('active');
+                sendMessageToAI(message, currentFileBase64, currentFileName);
+                currentFileBase64 = null;
+                currentFileName = null;
+                fileInfo.textContent = "Файл не выбран";
+                fileUploadContainer.classList.remove('active');
             }
         });
 
@@ -366,24 +399,23 @@
             }
         });
 
-        // Загрузка изображений
+        // Загрузка файлов
         uploadButton.addEventListener('click', () => {
-            imageUploadContainer.classList.toggle('active'); // Показываем/скрываем контейнер
+            fileUploadContainer.classList.toggle('active');
         });
 
-        imageInput.addEventListener('change', (event) => {
+        fileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
 
                 reader.onload = function(e) {
-                    currentImageBase64 = e.target.result;  //  Сохраняем base64
-
-                    imagePreview.src = currentImageBase64;
-                    imagePreview.style.display = "block";
+                    currentFileBase64 = e.target.result;
                 }
 
                 reader.readAsDataURL(file);
+                currentFileName = file.name;  // Сохраняем имя файла
+                fileInfo.textContent = `Выбран файл: ${file.name}`;
             }
         });
     </script>
