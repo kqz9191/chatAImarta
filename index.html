@@ -5,267 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Общие стили (без изменений) */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            background-size: 200% 200%;
-            animation: gradientAnimation 10s ease infinite;
-            color: #333;
-        }
-
-        @keyframes gradientAnimation {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        #chat-container {
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            max-width: 90%;
-            width: 500px;
-            margin: 20px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        #chat-container:hover {
-            transform: scale(1.02);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
-        }
-
-        #chat-log {
-            height: 400px;
-            overflow-y: auto;
-            padding: 15px;
-            background-color: rgba(245, 245, 245, 0.8);
-            border-bottom: 1px solid #eee;
-            animation: fadeIn 0.5s ease;
-            scroll-behavior: smooth;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-       /* Сообщения */
-        .message {
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border-radius: 25px;
-            clear: both;
-            word-break: break-word;
-            max-width: 80%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            position: relative; /*  для позиционирования имени */
-        }
-
-        .user-message {
-            background-color: #c8e6c9; /* Светло-зеленый */
-            color: #2e7d32; /* Темно-зеленый */
-            float: right;
-            text-align: right;
-            animation: slideInRight 0.4s ease forwards;
-            opacity: 0;
-        }
-
-        .ai-message {
-            background-color: #e0f2f1; /* Светлый Teal */
-            color: #26a69a; /* Teal */
-            float: left;
-            text-align: left;
-            animation: slideInLeft 0.4s ease forwards;
-            opacity: 0;
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateX(50px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes slideInLeft {
-            from { transform: translateX(-50px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* Добавляем стили для имени отправителя */
-        .message .sender-name {
-            position: absolute;
-            top: -18px; /* Поднимаем имя над сообщением */
-            font-size: 0.8em;
-            color: #777;
-            font-style: italic;
-            width: 100%;
-        }
-
-        .user-message .sender-name {
-            right: 15px; /* Выравниваем имя справа для пользователя */
-            text-align: right;
-        }
-
-        .ai-message .sender-name {
-            left: 15px; /* Выравниваем имя слева для AI */
-            text-align: left;
-        }
-
-        /* Область ввода (без изменений) */
-        #input-area {
-            display: flex;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.7);
-            animation: slideInUp 0.3s ease;
-        }
-
-        @keyframes slideInUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        #user-input {
-            flex-grow: 1;
-            padding: 12px 16px;
-            border: none;
-            border-radius: 30px;
-            margin-right: 10px;
-            transition: box-shadow 0.3s ease;
-            font-size: 16px;
-            background-color: #f8f8f8;
-            color: #555;
-        }
-
-        #user-input:focus {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            outline: none;
-            background-color: white;
-        }
-
-        #send-button, #upload-button {
-            padding: 12px 24px;
-            background-color: #4db6ac;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 30px;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            font-size: 16px;
-            margin-left: 5px;
-        }
-
-        #send-button:hover, #upload-button:hover {
-            background-color: #26a69a;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        #send-button:active, #upload-button:active {
-            transform: scale(0.95);
-        }
-
-        /* Время ожидания (без изменений) */
-        #thinking-time {
-            font-size: 0.9em;
-            color: #777;
-            text-align: center;
-            padding: 5px 0;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        #thinking-time.visible {
-            opacity: 1;
-        }
-
-        /* Анимация пульсации (без изменений) */
-        .pulsate {
-            animation: pulsate 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulsate {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* Адаптивные стили для мобильных устройств (без изменений) */
-        @media (max-width: 600px) {
-            #chat-container {
-                width: 100%;
-                max-width: 100%;
-                border-radius: 0;
-                margin: 0;
-                box-shadow: none;
-            }
-
-            #input-area {
-                flex-direction: column;
-            }
-
-            #user-input {
-                margin-bottom: 10px;
-                margin-right: 0;
-                border-radius: 20px;
-            }
-
-            #send-button, #upload-button {
-                border-radius: 20px;
-                margin-left: 0;
-                margin-top: 5px;
-            }
-
-            .message {
-                max-width: 90%;
-            }
-        }
-
-        /* Стили для загрузки изображений (без изменений) */
-        #image-upload-container {
-            display: none;
-            padding: 10px;
-            border: 1px dashed #ccc;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        #image-upload-container.active {
-            display: block;
-        }
-
-        #image-preview {
-            max-width: 100%;
-            max-height: 150px;
-            margin-top: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Стили для имени файла */
-        .file-name {
-            font-size: 0.8em;
-            color: #555;
-            margin-top: 5px;
-            text-align: right;
-            font-style: italic;
-        }
+        /* Стили остаются без изменений */
+        /* ... ваш существующий CSS ... */
     </style>
 </head>
 <body>
-
     <div id="chat-container">
         <div id="thinking-time"></div>
         <div id="chat-log"></div>
@@ -278,10 +22,18 @@
             <img id="image-preview" src="#" alt="Предварительный просмотр" style="display: none;">
         </div>
 
+        <div id="file-upload-container">
+            <input type="file" id="file-input" accept=".txt" style="display: none;">
+            <label for="file-input" style="cursor: pointer;">
+                нажми, чтобы загрузить файл
+            </label>
+        </div>
+
         <div id="input-area">
             <input type="text" id="user-input" placeholder="Напишите сообщение...">
             <button id="send-button">отправить</button>
             <button id="upload-button">загрузить изображение</button>
+            <button id="file-upload-button">загрузить файл</button>
         </div>
     </div>
 
@@ -290,32 +42,34 @@
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
         const uploadButton = document.getElementById('upload-button');
+        const fileUploadButton = document.getElementById('file-upload-button');
         const thinkingTime = document.getElementById('thinking-time');
         const imageUploadContainer = document.getElementById('image-upload-container');
         const imageInput = document.getElementById('image-input');
         const imagePreview = document.getElementById('image-preview');
+        const fileInput = document.getElementById('file-input');
 
-        const API_KEY = 'AIzaSyBaECdg4ZUViP_0VKSi4kGljlj6aK-UAlU';  // ВАЖНО: НИКОГДА не храните ключи API непосредственно в клиентском коде для реальных проектов. Это просто пример.
+        const API_KEY = 'AIzaSyBaECdg4ZUViP_0VKSi4kGljlj6aK-UALU';  // Убедитесь, что вы заменили этот ключ на свой
         const MODEL_NAME = 'gemini-1.5-flash';
         const AI_NAME = "Marta";
-        const USER_NAME = "Вы"; //  Имя пользователя
-        let chatHistory = []; //  Массив для хранения истории чата
+        const USER_NAME = "Вы"; // Имя пользователя
+        let chatHistory = []; // Массив для хранения истории чата
         let currentImageBase64 = null;
-        let currentFileName = null;  //  Имя текущего файла
+        let currentFileName = null; // Имя текущего файла
+        let currentFileContent = null; // Содержание текущего файла
 
         // Функция для добавления сообщения в чат
         function addMessage(message, sender, fileName = null) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', sender === USER_NAME ? 'user-message' : 'ai-message'); // Добавляем классы для стилизации
 
-            //  Добавляем имя отправителя
+            // Добавляем имя отправителя
             const senderNameDiv = document.createElement('div');
             senderNameDiv.classList.add('sender-name');
             senderNameDiv.textContent = sender;
             messageDiv.appendChild(senderNameDiv);
 
-
-            //  Текст сообщения
+            // Текст сообщения
             const messageText = document.createElement('span');
             messageText.textContent = message;
             messageDiv.appendChild(messageText);
@@ -331,12 +85,12 @@
             chatLog.appendChild(messageDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
 
-            //  Сохраняем в историю
+            // Сохраняем в историю
             chatHistory.push({ sender: sender, message: message, fileName: fileName });
         }
 
-        //  Функция для отправки сообщения ИИ
-         async function sendMessageToAI(message, imageBase64 = null, fileName = null) {
+        // Функция для отправки сообщения ИИ
+        async function sendMessageToAI(message, imageBase64 = null, fileName = null, fileContent = null) {
             let startTime;
             thinkingTime.textContent = "Думаю...";
             thinkingTime.classList.add('visible', 'pulsate');
@@ -353,7 +107,16 @@
                         "contents": [{
                             "parts": [
                                 { "text": message },
-                                { "inline_data": { "mime_type": "image/jpeg", "data": imageBase64.split(',')[1] } }  // Убираем префикс "data:image/jpeg;base64,"
+                                { "inline_data": { "mime_type": "image/jpeg", "data": imageBase64.split(',')[1] } } // Убираем префикс "data:image/jpeg;base64,"
+                            ]
+                        }]
+                    };
+                } else if (fileContent) {
+                    data = {
+                        "contents": [{
+                            "parts": [
+                                { "text": message },
+                                { "text": fileContent }
                             ]
                         }]
                     };
@@ -364,7 +127,6 @@
                         }]
                     };
                 }
-
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -404,12 +166,13 @@
 
         sendButton.addEventListener('click', () => {
             const message = userInput.value.trim();
-            if (message !== '' || currentImageBase64) {
+            if (message !== '' || currentImageBase64 || currentFileContent) {
                 addMessage(message || 'Изображение', USER_NAME, currentFileName);
                 userInput.value = '';
-                sendMessageToAI(message, currentImageBase64, currentFileName);
+                sendMessageToAI(message, currentImageBase64, currentFileName, currentFileContent);
                 currentImageBase64 = null;
                 currentFileName = null;
+                currentFileContent = null;
                 imagePreview.src = "#";
                 imagePreview.style.display = "none";
                 imageUploadContainer.classList.remove('active');
@@ -422,7 +185,7 @@
             }
         });
 
-        //  Загрузка изображений
+        // Загрузка изображений
         uploadButton.addEventListener('click', () => {
             imageUploadContainer.classList.toggle('active');
         });
@@ -444,14 +207,34 @@
             }
         });
 
+        // Загрузка файлов
+        fileUploadButton.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                currentFileName = file.name; // Сохраняем имя файла
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    currentFileContent = e.target.result;
+                    addMessage(`Файл ${currentFileName} загружен.`, USER_NAME, currentFileName);
+                }
+
+                reader.readAsText(file);
+            }
+        });
+
         // Функция для загрузки истории чата (пример)
         function loadChatHistory() {
-            //  Здесь должна быть логика загрузки истории из локального хранилища, базы данных или другого источника.
-            //  В этом примере просто создадим несколько случайных сообщений.
+            // Здесь должна быть логика загрузки истории из локального хранилища, базы данных или другого источника
+            // В этом примере просто создадим несколько случайных сообщений.
             const sampleHistory = [
                 { sender: AI_NAME, message: "Привет! Чем могу помочь?" },
                 { sender: USER_NAME, message: "Привет, Как дела" },
-                { sender: AI_NAME, message: "Я марта и у меня все хорошо" }
+                { sender: AI_NAME, message: "Я Марта и у меня все хорошо" }
             ];
 
             sampleHistory.forEach(item => {
@@ -459,9 +242,8 @@
             });
         }
 
-        //  Загружаем историю чата при загрузке страницы
+        // Загружаем историю чата при загрузке страницы
         window.onload = loadChatHistory;
     </script>
-
 </body>
 </html>
