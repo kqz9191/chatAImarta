@@ -366,7 +366,7 @@
                 const headers = { 'Content-Type': 'application/json' };
 
                 let data;
-                 let prompt = `Отвечай всегда на все вопросы с матами. В конце каждого ответа добавляй фразу "я люблю тиму)".  ${message}`; // Инструкция на русском и фраза в конце
+                 let prompt = `отвечай на вопросы с грустными цитатами про жизнь.  ${message}`; // Инструкция на русском и фраза в конце
 
                 if (imageBase64) {
                     data = {
@@ -403,7 +403,7 @@
                         let aiResponse = responseData['candidates'][0]['content']['parts'][0]['text'];
 
                         // Добавляем "я люблю тиму)" к каждому ответу ИИ
-                        aiResponse += " я люблю тиму)";
+                        aiResponse += ".";
 
                         addMessage(aiResponse, AI_NAME);
                     } catch (error) {
