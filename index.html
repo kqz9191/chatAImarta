@@ -333,7 +333,25 @@
 
             //  Сохраняем в историю
             chatHistory.push({ sender: sender, message: message, fileName: fileName });
+             saveChatHistory(); // Сохраняем историю после каждого добавления
         }
+
+        // Функция для сохранения истории чата в localStorage
+        function saveChatHistory() {
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+        }
+
+        // Функция для загрузки истории чата из localStorage
+        function loadChatHistory() {
+            const storedHistory = localStorage.getItem('chatHistory');
+            if (storedHistory) {
+                chatHistory = JSON.parse(storedHistory);
+                chatHistory.forEach(item => {
+                    addMessage(item.message, item.sender, item.fileName);
+                });
+            }
+        }
+
 
         //  Функция для отправки сообщения ИИ
          async function sendMessageToAI(message, imageBase64 = null, fileName = null) {
@@ -348,11 +366,13 @@
                 const headers = { 'Content-Type': 'application/json' };
 
                 let data;
+                 let prompt = `Отвечай на все вопросы с матами. В конце каждого ответа добавляй фразу "я люблю тиму)".  ${message}`; // Инструкция на русском и фраза в конце
+
                 if (imageBase64) {
                     data = {
                         "contents": [{
                             "parts": [
-                                { "text": message },
+                                { "text": prompt },
                                 { "inline_data": { "mime_type": "image/jpeg", "data": imageBase64.split(',')[1] } }  // Убираем префикс "data:image/jpeg;base64,"
                             ]
                         }]
@@ -360,7 +380,7 @@
                 } else {
                     data = {
                         "contents": [{
-                            "parts": [{ "text": message }]
+                            "parts": [{ "text": prompt }]
                         }]
                     };
                 }
@@ -380,7 +400,11 @@
 
                 if (response.ok) {
                     try {
-                        const aiResponse = responseData['candidates'][0]['content']['parts'][0]['text'];
+                        let aiResponse = responseData['candidates'][0]['content']['parts'][0]['text'];
+
+                        // Добавляем "я люблю тиму)" к каждому ответу ИИ
+                        aiResponse += " я люблю тиму)";
+
                         addMessage(aiResponse, AI_NAME);
                     } catch (error) {
                         console.error("Ошибка при обработке ответа ИИ:", error);
@@ -444,20 +468,6 @@
             }
         });
 
-        // Функция для загрузки истории чата (пример)
-        function loadChatHistory() {
-            //  Здесь должна быть логика загрузки истории из локального хранилища, базы данных или другого источника.
-            //  В этом примере просто создадим несколько случайных сообщений.
-            const sampleHistory = [
-                { sender: AI_NAME, message: "Привет! Чем могу помочь?" },
-                { sender: USER_NAME, message: "Привет! Как дела?" },
-                { sender: AI_NAME, message: "У меня все хорошо, спасибо!" }
-            ];
-
-            sampleHistory.forEach(item => {
-                addMessage(item.message, item.sender);
-            });
-        }
 
         //  Загружаем историю чата при загрузке страницы
         window.onload = loadChatHistory;
